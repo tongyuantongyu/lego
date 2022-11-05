@@ -10,13 +10,13 @@ import (
 type OrderService service
 
 // New Creates a new order.
-func (o *OrderService) New(domains []string) (acme.ExtendedOrder, error) {
+func (o *OrderService) New(domains []string, notAfter string) (acme.ExtendedOrder, error) {
 	var identifiers []acme.Identifier
 	for _, domain := range domains {
 		identifiers = append(identifiers, acme.Identifier{Type: "dns", Value: domain})
 	}
 
-	orderReq := acme.Order{Identifiers: identifiers}
+	orderReq := acme.Order{Identifiers: identifiers, NotAfter: notAfter}
 
 	var order acme.Order
 	resp, err := o.core.post(o.core.GetDirectory().NewOrderURL, orderReq, &order)

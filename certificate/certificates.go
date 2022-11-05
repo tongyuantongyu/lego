@@ -60,6 +60,7 @@ type ObtainRequest struct {
 	MustStaple                     bool
 	PreferredChain                 string
 	AlwaysDeactivateAuthorizations bool
+	NotAfter                       string
 }
 
 // ObtainForCSRRequest The request to obtain a certificate matching the CSR passed into it.
@@ -73,6 +74,7 @@ type ObtainForCSRRequest struct {
 	Bundle                         bool
 	PreferredChain                 string
 	AlwaysDeactivateAuthorizations bool
+	NotAfter                       string
 }
 
 type resolver interface {
@@ -117,7 +119,7 @@ func (c *Certifier) Obtain(request ObtainRequest) (*Resource, error) {
 		log.Infof("[%s] acme: Obtaining SAN certificate", strings.Join(domains, ", "))
 	}
 
-	order, err := c.core.Orders.New(domains)
+	order, err := c.core.Orders.New(domains, request.NotAfter)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +184,7 @@ func (c *Certifier) ObtainForCSR(request ObtainForCSRRequest) (*Resource, error)
 		log.Infof("[%s] acme: Obtaining SAN certificate given a CSR", strings.Join(domains, ", "))
 	}
 
-	order, err := c.core.Orders.New(domains)
+	order, err := c.core.Orders.New(domains, request.NotAfter)
 	if err != nil {
 		return nil, err
 	}
