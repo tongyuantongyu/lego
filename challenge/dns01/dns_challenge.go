@@ -124,19 +124,24 @@ func (c *Challenge) Solve(authz acme.Authorization) error {
 		timeout, interval = DefaultPropagationTimeout, DefaultPollingInterval
 	}
 
-	log.Infof("[%s] acme: Checking DNS record propagation using %+v", domain, recursiveNameservers)
+	if timeout == 0 {
+		log.Infof("[%s] acme: Wait DNS record propagation for %s", interval.String())
+		time.Sleep(interval)
+	} else {
+		log.Infof("[%s] acme: Checking DNS record propagation using %+v", domain, recursiveNameservers)
 
-	time.Sleep(interval)
+		time.Sleep(interval)
 
-	err = wait.For("propagation", timeout, interval, func() (bool, error) {
-		stop, errP := c.preCheck.call(domain, fqdn, value)
-		if !stop || errP != nil {
-			log.Infof("[%s] acme: Waiting for DNS record propagation.", domain)
+		err = wait.For("propagation", timeout, interval, func() (bool, error) {
+			stop, errP := c.preCheck.call(domain, fqdn, value)
+			if !stop || errP != nil {
+				log.Infof("[%s] acme: Waiting for DNS record propagation.", domain)
+			}
+			return stop, errP
+		})
+		if err != nil {
+			return err
 		}
-		return stop, errP
-	})
-	if err != nil {
-		return err
 	}
 
 	chlng.KeyAuthorization = keyAuth
