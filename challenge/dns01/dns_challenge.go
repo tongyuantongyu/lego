@@ -125,7 +125,7 @@ func (c *Challenge) Solve(authz acme.Authorization) error {
 	}
 
 	if timeout == 0 {
-		log.Infof("[%s] acme: Wait DNS record propagation for %s", interval.String())
+		log.Infof("[%s] acme: Wait DNS record propagation for %s", domain, interval.String())
 		time.Sleep(interval)
 	} else {
 		log.Infof("[%s] acme: Checking DNS record propagation using %+v", domain, recursiveNameservers)
